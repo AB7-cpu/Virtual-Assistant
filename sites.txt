@@ -1,0 +1,2 @@
+google?www.google.com
+spotify?https:/open.spotify.com
