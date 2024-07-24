@@ -35,18 +35,20 @@ def takeCommand():
     except Exception as e:
         print('Sorry an error caused.')
 
-def wakeup():
+def takeWakeupCommand():
     r = sr.Recognizer()
     try:
         with sr.Microphone() as source:
-            print('Listening...')
+            print("Listening...")
             r.pause_threshold = 1
             audio = r.listen(source)
+            print("Recognizing...")
             query = r.recognize_google(audio, language='en-in')
             return query.lower()
     
     except Exception as e:
-        pass
+        print('Sorry an error caused.')
+
 
 
 def rps():
@@ -83,13 +85,13 @@ def rps():
             say('you loose')
         else:
             say('its a tie')
-            
-def wakeup_1():
-    n = 1
-    while n>0:
-        command = wakeup()
-        if "victus" in command:
-            say('Yes sir i am Listening...')
+
+
+def sleep():
+    while True:
+        command = takeCommand()
+        if 'victus' in command:
+            say('Yes sir i am Listening')
             break
         else:
             continue
@@ -162,20 +164,23 @@ if __name__ == '__main__':
             if 'open google' in query:
                 say('Opening Google.com')
                 webbrowser.open('www.google.com')
-                wakeup_1()
+                sleep()
 
             elif 'play' in query:
                 query = query.replace('play', '')
                 say(f'Playing {query}')
                 py.playonyt(query)
+                sleep()
 
             elif 'spotify' in query:
                 say('Opening Spotify')
                 webbrowser.open('https://open.spotify.com')
+                sleep()
 
             elif 'date' in query:
                 today = dt.date.today().strftime("%B %d, %Y")
                 say(f"Sir it's {today}")
+                sleep()
 
             elif 'game' in query:
                 say(f'Ok what game do u wanna play. I know few games such as {games}')
@@ -185,6 +190,7 @@ if __name__ == '__main__':
 
             elif 'news' in query:
                 news()
+                sleep()
 
             elif 'red' in query:
                 say(f'Changing studio light colour to RED')
