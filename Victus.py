@@ -79,11 +79,6 @@ def load_dict_from_file(filename):
 
 now = int(datetime.now().strftime("%H"))
 
-#Dictionary for Softwares and sites:
-Sites = load_dict_from_file('sites.txt')
-
-Software = load_dict_from_file('software.txt')
-
 
 if __name__ == '__main__':
 
@@ -101,6 +96,9 @@ if __name__ == '__main__':
 
     
     while True:
+        Sites = load_dict_from_file('sites.txt')
+        Software = load_dict_from_file('software.txt')
+        
         query = takeCommand()
 
         try:

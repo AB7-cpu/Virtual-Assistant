@@ -2,22 +2,81 @@ import speech_recognition as sr
 import webbrowser
 import win32com.client as wincl
 import pywhatkit as py
-import os
-import subprocess as sb
 import datetime as dt
 from datetime import datetime
-import random 
-import pygame
+import random
 import serial
 import time
 import random
 import requests
+from groq import Groq
+from config import news_apikey
+from config import chatbot_apikey
+import os
 
 def say(text):
     say = wincl.Dispatch('SAPI.SpVoice')
     say.Speak(text)
 
+def load_convo(filename = 'conversation.txt'):
+    if os.path.exists(filename):
+        with open(filename, 'r') as file:
+            return file.read()
+    return ''
 
+def save_convo(convo, filename = 'conversation.txt'):
+    with open(filename, 'a') as file:
+        file.write(convo + '\n')
+
+def chatbot():
+    say("Hello i am your chat bot. You can ask me anything you want.")
+    while True:
+        convo_history = load_convo()
+
+        user_inp = takeCommand()
+
+        if user_inp == 'exit':
+            say('Exiting Chatbot')
+            break
+
+        elif user_inp == '':
+            continue
+
+        else:
+            client = Groq(api_key=chatbot_apikey)
+            completion = client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "This is a conversation history:"
+                    },
+                    {
+                        "role": "user",
+                        "content": convo_history
+                    },
+                    {
+                        "role": "user",
+                        "content": f"{user_inp}\n"
+                    }
+                ],
+                temperature=1,
+                max_tokens=1024,
+                top_p=1,
+                stream=True,
+                stop=None,
+            )
+
+            llama_resp = ''
+
+            for chunk in completion:
+                if chunk.choices[0].delta.content:
+                    llama_resp += chunk.choices[0].delta.content or ""
+                    print(chunk.choices[0].delta.content or "", end="")
+
+            say(llama_resp)
+            save_convo(f'User: {user_inp}')
+            save_convo(f'LLaMA: {llama_resp}')
 
 
 def takeCommand():
@@ -89,7 +148,7 @@ def rps():
 
 def sleep():
     while True:
-        command = takeCommand()
+        command = takeWakeupCommand()
         if 'victus' in command:
             say('Yes sir i am Listening')
             break
@@ -111,7 +170,7 @@ def news():
     }
 
     regi = reg[query]
-    api_key = 'cb8d3f1f44d34d1e84f8528282ba4471'
+    api_key = news_apikey
     url = f'https://newsapi.org/v2/top-headlines?language=en{regi}&apiKey={api_key}'
 
 
@@ -191,6 +250,9 @@ if __name__ == '__main__':
             elif 'news' in query:
                 news()
                 sleep()
+
+            elif 'chatbot' in query:
+                chatbot()
 
             elif 'red' in query:
                 say(f'Changing studio light colour to RED')
